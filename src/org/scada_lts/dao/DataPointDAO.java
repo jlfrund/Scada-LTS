@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.serotonin.mango.view.ShareUser;
+import com.serotonin.mango.vo.dataSource.DataSourceVO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.scada_lts.dao.model.ScadaObjectIdentifier;
@@ -59,6 +60,7 @@ public class DataPointDAO {
 	private static final String COLUMN_NAME_XID = "xid";
 	private static final String COLUMN_NAME_DATA_SOURCE_ID = "dataSourceId";
 	private static final String COLUMN_NAME_DATA = "data";
+	private static final String COLUMN_NAME_DS_DATA = "dsdata";
 	private static final String COLUMN_NAME_PLC_ALARM_LEVEL = "plcAlarmLevel";
 
 	private static final String COLUMN_NAME_DS_NAME = "name";
@@ -83,7 +85,8 @@ public class DataPointDAO {
 				+ "dp." + COLUMN_NAME_DATA + ", "
 				+ "ds." + COLUMN_NAME_DS_NAME + ", "
 				+ "ds." + COLUMN_NAME_DS_XID + " as dsxid, "
-				+ "ds." + COLUMN_NAME_DS_DATA_SOURCE_TYPE + " "
+				+ "ds." + COLUMN_NAME_DS_DATA_SOURCE_TYPE + ", "
+			    + "ds." + COLUMN_NAME_DATA + " AS " + COLUMN_NAME_DS_DATA + " "
 			+ "from dataPoints dp join dataSources ds on "
 				+ "ds." + COLUMN_NAME_DS_ID + "="
 				+ "dp." + COLUMN_NAME_DATA_SOURCE_ID + " ";
@@ -156,6 +159,9 @@ public class DataPointDAO {
 		public DataPointVO mapRow(ResultSet resultSet, int rowNum) throws SQLException {
 			
 			DataPointVO dataPoint = (DataPointVO) new SerializationData().readObject(resultSet.getBlob(COLUMN_NAME_DATA).getBinaryStream());
+			//TODO: Make a migration to move DataSource status from "data" BLOB to separate column.
+			//It is not necessary to parse all BLOB data to receive "enable" property that is common for all DS.
+			DataSourceVO dataSource = (DataSourceVO) new SerializationData().readObject(resultSet.getBlob(COLUMN_NAME_DS_DATA).getBinaryStream());
 			
 			dataPoint.setId(resultSet.getInt(COLUMN_NAME_ID));
 			dataPoint.setXid(resultSet.getString(COLUMN_NAME_XID));
@@ -163,6 +169,7 @@ public class DataPointDAO {
 			dataPoint.setDataSourceXid( resultSet.getString("dsxid"));
 			dataPoint.setDataSourceName(resultSet.getString(COLUMN_NAME_DS_NAME));
 			dataPoint.setDataSourceTypeId(resultSet.getInt(COLUMN_NAME_DS_DATA_SOURCE_TYPE));
+			dataPoint.setDataSourceEnabled(dataSource.isEnabled());
 			
 			return dataPoint;
 		}

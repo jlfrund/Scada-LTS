@@ -215,6 +215,7 @@ public class DataPointVO implements Serializable, Cloneable, JsonSerializable, C
     //
     private int dataSourceTypeId;
     private String dataSourceName;
+    private boolean dataSourceEnabled;
 
     //
     //
@@ -344,6 +345,14 @@ public class DataPointVO implements Serializable, Cloneable, JsonSerializable, C
 
     public void setDataSourceId(int dataSourceId) {
         this.dataSourceId = dataSourceId;
+    }
+
+    public boolean isDataSourceEnabled() {
+        return dataSourceEnabled;
+    }
+
+    public void setDataSourceEnabled(boolean dataSourceEnabled) {
+        this.dataSourceEnabled = dataSourceEnabled;
     }
 
     public String getDeviceName() {
